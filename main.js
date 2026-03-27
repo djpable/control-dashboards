@@ -1,12 +1,33 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const isDev = process.env.NODE_ENV === 'development';
+let backendProcess = null;
+
+function startBackend() {
+  const backendDir = path.join(__dirname, 'backend');
+  backendProcess = spawn('dotnet', ['run', '--urls', 'http://localhost:5005'], {
+    cwd: backendDir,
+    shell: false,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  backendProcess.stdout.on('data', (data) => console.log(`[backend] ${data}`));
+  backendProcess.stderr.on('data', (data) => console.error(`[backend] ${data}`));
+  backendProcess.on('close', (code) => console.log(`Backend process closed with code ${code}`));
+}
+
+function stopBackend() {
+  if (backendProcess) {
+    backendProcess.kill();
+    backendProcess = null;
+  }
+}
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1024,
+    height: 768,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -15,34 +36,25 @@ function createWindow() {
     },
   });
 
-  ipcMain.handle('backend-show-status', async (event, { index, status }) => {
-    const backendExe = path.join(__dirname, 'backend', 'ControlBackend.dll');
-    const statusText = status === 'on' ? 'green' : 'red';
-    const message = `Controllo ${index + 1}: LED ${statusText}`;
-
-    return new Promise((resolve) => {
-      const proc = spawn('dotnet', [backendExe, statusText, message], { windowsHide: true, shell: false });
-
-      proc.on('close', (code) => {
-        resolve({ code });
-      });
-      proc.on('error', (err) => {
-        resolve({ error: err.message });
-      });
-    });
-  });
-
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
   }
+
+  mainWindow.on('closed', () => {
+    stopBackend();
+  });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  startBackend();
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
+  stopBackend();
   if (process.platform !== 'darwin') {
     app.quit();
   }

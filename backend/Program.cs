@@ -1,21 +1,46 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
-internal static class Program
+var builder = WebApplication.CreateBuilder(args);
+
+var app = builder.Build();
+
+app.MapGet("/api/led", async (int index, string status) =>
 {
-    [STAThread]
-    private static void Main(string[] args)
+    var statusText = status.Equals("on", StringComparison.InvariantCultureIgnoreCase) ? "green" : "red";
+    var message = $"Controllo {index + 1}: LED {statusText}";
+    var result = await ShowMessageBoxAsync(message, statusText);
+    return Results.Ok(new { index, status = statusText, result });
+});
+
+app.MapGet("/health", () => Results.Ok("ok"));
+
+app.Run("http://localhost:5005");
+
+static Task<string> ShowMessageBoxAsync(string message, string statusText)
+{
+    var tcs = new TaskCompletionSource<string>();
+    var thread = new Thread(() =>
     {
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
+        try
+        {
+            var icon = statusText.Equals("green", StringComparison.InvariantCultureIgnoreCase)
+                ? MessageBoxIcon.Information
+                : MessageBoxIcon.Error;
 
-        string status = args.Length > 0 ? args[0] : "red";
-        string message = args.Length > 1 ? args[1] : "Stato LED non specificato";
+            MessageBox.Show(message, $"LED {statusText.ToUpper()}", MessageBoxButtons.OK, icon);
+            tcs.SetResult("shown");
+        }
+        catch (Exception ex)
+        {
+            tcs.SetException(ex);
+        }
+    });
 
-        var icon = status.Equals("green", StringComparison.InvariantCultureIgnoreCase)
-            ? MessageBoxIcon.Information
-            : MessageBoxIcon.Error;
+    thread.SetApartmentState(ApartmentState.STA);
+    thread.Start();
 
-        MessageBox.Show(message, $"LED {status.ToUpper()}", MessageBoxButtons.OK, icon);
-    }
+    return tcs.Task;
 }
