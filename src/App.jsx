@@ -16,6 +16,15 @@ function App() {
   const setControlStatus = (index, status) =>
     setControls((prev) => prev.map((c, i) => (i === index ? { ...c, status } : c)));
 
+  const updateStatus = (index, status) => {
+    setControlStatus(index, status);
+    if (window.backend && window.backend.showLedStatus) {
+      window.backend.showLedStatus(index, status).then((result) => {
+        console.log('Backend returned', result);
+      });
+    }
+  };
+
   const renderControl = (control, index) => (
     <div
       key={index}
@@ -37,10 +46,10 @@ function App() {
         style={{ padding: '4px', width: '4ch' }}
         onChange={(e) => setControlText(index, e.target.value)}
       />
-      <button onClick={() => setControlStatus(index, 'on')} style={{ padding: '4px 6px' }}>
+      <button onClick={() => updateStatus(index, 'on')} style={{ padding: '4px 6px' }}>
         On
       </button>
-      <button onClick={() => setControlStatus(index, 'off')} style={{ padding: '4px 6px' }}>
+      <button onClick={() => updateStatus(index, 'off')} style={{ padding: '4px 6px' }}>
         Off
       </button>
       <div
