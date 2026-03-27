@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 function App() {
   const [count, setCount] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
-  const [controls, setControls] = useState([
-    { text: '', status: 'off' },
-    { text: '', status: 'off' },
-    { text: '', status: 'off' },
-  ]);
+  const rows = 32;
+  const cols = 8;
+  const totalControls = rows * cols;
+  const [controls, setControls] = useState(
+    Array.from({ length: totalControls }, () => ({ text: '', status: 'off' }))
+  );
 
   const setControlText = (index, value) =>
     setControls((prev) => prev.map((c, i) => (i === index ? { ...c, text: value } : c)));
@@ -20,29 +21,32 @@ function App() {
       key={index}
       style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 80px 80px 24px',
+        gridTemplateColumns: 'auto auto auto 24px',
         alignItems: 'center',
-        gap: '8px',
-        marginBottom: '10px',
+        gap: '4px',
+        padding: '4px',
+        border: '1px solid #ddd',
+        borderRadius: '4px',
       }}
     >
       <input
         type="text"
-        placeholder={`User control ${index + 1}`}
+        placeholder="...."
+        maxLength={4}
         value={control.text}
-        style={{ padding: '6px', width: '100%' }}
+        style={{ padding: '4px', width: '4ch' }}
         onChange={(e) => setControlText(index, e.target.value)}
       />
-      <button onClick={() => setControlStatus(index, 'on')} style={{ padding: '6px' }}>
+      <button onClick={() => setControlStatus(index, 'on')} style={{ padding: '4px 6px' }}>
         On
       </button>
-      <button onClick={() => setControlStatus(index, 'off')} style={{ padding: '6px' }}>
+      <button onClick={() => setControlStatus(index, 'off')} style={{ padding: '4px 6px' }}>
         Off
       </button>
       <div
         style={{
-          width: '18px',
-          height: '18px',
+          width: '12px',
+          height: '12px',
           borderRadius: '50%',
           background: control.status === 'on' ? 'green' : 'red',
           border: '1px solid #333',
@@ -94,8 +98,16 @@ function App() {
         {activeTab === 1 && (
           <div>
             <h2>Prova2 - User Controls</h2>
-            <p>Ogni controllo ha TextEdit, On/Off e LED.</p>
-            {controls.map(renderControl)}
+            <p>Ogni controllo ha TextEdit (4 char), On/Off e LED.</p>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+                gap: '8px',
+              }}
+            >
+              {controls.map(renderControl)}
+            </div>
           </div>
         )}
       </div>
