@@ -67,8 +67,6 @@ function App() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Control Dashboards</h1>
-
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         <button
           style={{
