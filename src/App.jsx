@@ -43,10 +43,10 @@ function App() {
         placeholder="...."
         maxLength={4}
         value={control.text}
-        style={{ padding: '4px', width: '4ch' }}
+        style={{ padding: '2px', width: '4ch', fontSize: '12px', marginRight: '0px' }}
         onChange={(e) => setControlText(index, e.target.value)}
       />
-      <button onClick={() => updateStatus(index, 'on')} style={{ padding: '4px 6px' }}>
+      <button onClick={() => updateStatus(index, 'on')} style={{ padding: '4px 6px', fontSize: '11px', marginLeft: '0px' }}>
         On
       </button>
       <button onClick={() => updateStatus(index, 'off')} style={{ padding: '4px 6px' }}>
@@ -110,7 +110,7 @@ function App() {
               style={{
                 display: 'grid',
                 gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-                gap: '2px',
+                gap: '0px',
                 padding: '2px',
               }}
             >
@@ -121,7 +121,7 @@ function App() {
                     display: 'grid',
                     gridTemplateColumns: 'auto auto auto 16px',
                     alignItems: 'center',
-                    gap: '2px',
+                    gap: '0px',
                     padding: '2px',
                     border: '1px solid #ddd',
                     borderRadius: '2px',
