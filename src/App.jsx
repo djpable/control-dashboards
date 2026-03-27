@@ -106,16 +106,53 @@ function App() {
 
         {activeTab === 1 && (
           <div>
-            <h2>Prova2 - User Controls</h2>
-            <p>Ogni controllo ha TextEdit (4 char), On/Off e LED.</p>
             <div
               style={{
                 display: 'grid',
                 gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-                gap: '8px',
+                gap: '2px',
+                padding: '2px',
               }}
             >
-              {controls.map(renderControl)}
+              {controls.map((control, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'auto auto auto 16px',
+                    alignItems: 'center',
+                    gap: '2px',
+                    padding: '2px',
+                    border: '1px solid #ddd',
+                    borderRadius: '2px',
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="..."
+                    maxLength={4}
+                    value={control.text}
+                    style={{ padding: '2px', width: '4ch', fontSize: '12px' }}
+                    onChange={(e) => setControlText(index, e.target.value)}
+                  />
+                  <button onClick={() => updateStatus(index, 'on')} style={{ padding: '2px', fontSize: '11px' }}>
+                    On
+                  </button>
+                  <button onClick={() => updateStatus(index, 'off')} style={{ padding: '2px', fontSize: '11px' }}>
+                    Off
+                  </button>
+                  <div
+                    style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      background: control.status === 'on' ? 'green' : 'red',
+                      border: '1px solid #333',
+                    }}
+                    title={control.status === 'on' ? 'Green' : 'Red'}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         )}
